@@ -1,80 +1,65 @@
 import {useEffect, useRef} from 'react';
-import leaflet from 'leaflet';
+import {LayerGroup, icon, layerGroup, marker} from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {Offer} from '../../types/offer';
+import useMap from '../../hooks/use-map';
 
 type MapProps = {
   offers: Offer[];
   selectedOfferId: string | null;
-  className?: string;
 };
 
 const DEFAULT_COORDS: [number, number] = [52.3909553943508, 4.85309666406198];
 const DEFAULT_ZOOM = 12;
 
-const defaultIcon = leaflet.icon({
+const defaultIcon = icon({
   iconUrl: '/img/pin.svg',
   iconSize: [27, 39],
   iconAnchor: [13, 39],
 });
 
-const activeIcon = leaflet.icon({
+const activeIcon = icon({
   iconUrl: '/img/pin-active.svg',
   iconSize: [27, 39],
   iconAnchor: [13, 39],
 });
 
-function Map({offers, selectedOfferId, className = 'cities__map map'}: MapProps): JSX.Element {
+function Map({offers, selectedOfferId}: MapProps): JSX.Element {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<leaflet.Map | null>(null);
-  const markersLayerRef = useRef<leaflet.LayerGroup | null>(null);
+  const markersLayerRef = useRef<LayerGroup | null>(null);
+  const map = useMap(mapContainerRef, DEFAULT_COORDS, DEFAULT_ZOOM);
 
   useEffect(() => {
-    if (mapContainerRef.current === null || mapRef.current !== null) {
+    if (map === null || offers.length === 0) {
       return;
     }
 
-    const map = leaflet.map(mapContainerRef.current).setView(DEFAULT_COORDS, DEFAULT_ZOOM);
-
-    leaflet
-      .tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        })
-      .addTo(map);
-
-    mapRef.current = map;
-    markersLayerRef.current = leaflet.layerGroup().addTo(map);
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      markersLayerRef.current = null;
-    };
-  }, []);
-
+    map.setView([offers[0].location.lat, offers[0].location.lng], DEFAULT_ZOOM);
+  }, [map, offers]);
 
   useEffect(() => {
+    if (map === null) {
+      return;
+    }
+
+    if (markersLayerRef.current === null) {
+      markersLayerRef.current = layerGroup().addTo(map);
+    }
+
     const markersLayer = markersLayerRef.current;
-    if (markersLayer === null) {
-      return;
-    }
 
     markersLayer.clearLayers();
 
     offers.forEach((offer) => {
-      const isActive = selectedOfferId === offer.id;
+      const currentIcon = offer.id === selectedOfferId ? activeIcon : defaultIcon;
 
-      leaflet
-        .marker([offer.location.lat, offer.location.lng], {
-          icon: isActive ? activeIcon : defaultIcon,
-        })
-        .addTo(markersLayer);
+      marker([offer.location.lat, offer.location.lng], {
+        icon: currentIcon,
+      }).addTo(markersLayer);
     });
-  }, [offers, selectedOfferId]);
+  }, [map, offers, selectedOfferId]);
 
-  return <div className={className} ref={mapContainerRef} />;
+  return <div ref={mapContainerRef} style={{height: '100%'}} />;
 }
 
 export default Map;

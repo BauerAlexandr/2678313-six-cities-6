@@ -117,7 +117,9 @@ function HomepageShell({offers}: HomepageProps): JSX.Element {
             </section>
 
             <div className="cities__right-section">
-              <Map offers={offers} selectedOfferId={activeOfferId} />
+              <section className="cities__map map">
+                <Map offers={offers} selectedOfferId={activeOfferId} />
+              </section>
             </div>
           </div>
         </div>
