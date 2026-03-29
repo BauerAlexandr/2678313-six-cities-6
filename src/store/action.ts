@@ -1,20 +1,6 @@
-import {offers} from '../mocks/offers';
+import {createAction} from '@reduxjs/toolkit';
+import {Offer} from '../types/offer';
 
-export enum ActionType {
-  ChangeCity = 'app/changeCity',
-  FillOffers = 'app/fillOffers',
-}
+export const changeCity = createAction<string>('app/changeCity');
 
-export const changeCity = (city: string) => ({
-  type: ActionType.ChangeCity as const,
-  payload: city,
-});
-
-export const fillOffers = () => ({
-  type: ActionType.FillOffers as const,
-  payload: offers,
-});
-
-export type Actions =
-  | ReturnType<typeof changeCity>
-  | ReturnType<typeof fillOffers>;
+export const fillOffers = createAction<Offer[]>('app/fillOffers');

@@ -10,7 +10,7 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-store.dispatch(fillOffers());
+store.dispatch(fillOffers(offers));
 
 root.render(
   <React.StrictMode>

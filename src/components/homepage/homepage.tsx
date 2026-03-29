@@ -1,9 +1,8 @@
 import {Link} from 'react-router-dom';
 import {useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {AppRoute} from '../../const';
+import {useAppDispatch, useAppSelector} from '../../hooks';
 import {changeCity} from '../../store/action';
-import {RootState} from '../../store';
 import {getCity, getOffersByCity} from '../../store/reducer';
 import OffersList from '../offers-list/offers-list';
 import Map from '../map/map';
@@ -26,9 +25,9 @@ const sortingOptions = [
 ];
 
 function HomepageShell(): JSX.Element {
-  const dispatch = useDispatch();
-  const city = useSelector((state: RootState) => getCity(state));
-  const offers = useSelector((state: RootState) => getOffersByCity(state));
+  const dispatch = useAppDispatch();
+  const city = useAppSelector(getCity);
+  const offers = useAppSelector(getOffersByCity);
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
 
   return (
