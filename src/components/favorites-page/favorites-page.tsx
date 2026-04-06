@@ -1,16 +1,16 @@
 import {Link} from 'react-router-dom';
 import {AppRoute} from '../../const';
-import {Offer} from '../../types/offer';
+import {OfferPreview} from '../../types/offer';
 import OffersList from '../offers-list/offers-list';
 
 type FavoritesPageProps = {
-  offers: Offer[];
+  offers: OfferPreview[];
 };
 
 function FavoritesPage({offers}: FavoritesPageProps): JSX.Element {
   const favoriteOffers = offers.filter((offer) => offer.isFavorite);
 
-  const offersByCity = favoriteOffers.reduce<Record<string, Offer[]>>((acc, offer) => {
+  const offersByCity = favoriteOffers.reduce<Record<string, OfferPreview[]>>((acc, offer) => {
     if (!acc[offer.city]) {
       acc[offer.city] = [];
     }

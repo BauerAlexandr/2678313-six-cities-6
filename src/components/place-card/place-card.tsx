@@ -1,10 +1,10 @@
 import {Link} from 'react-router-dom';
-import {Offer} from '../../types/offer';
+import {OfferPreview} from '../../types/offer';
 
 export type PlaceCardType = 'cities' | 'favorites' | 'near';
 
 type PlaceCardProps = {
-  offer: Offer;
+  offer: OfferPreview;
   cardType?: PlaceCardType;
   onHover?: (offerId: string) => void;
   onLeave?: () => void;

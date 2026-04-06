@@ -4,7 +4,7 @@ import {AppRoute} from '../../const';
 import {useAppDispatch, useAppSelector} from '../../hooks';
 import {changeCity} from '../../store/action';
 import {getCity, getOffersByCity} from '../../store/reducer';
-import {Offer} from '../../types/offer';
+import {OfferPreview} from '../../types/offer';
 import OffersList from '../offers-list/offers-list';
 import Map from '../map/map';
 import CitiesList from '../cities-list/cities-list';
@@ -26,7 +26,7 @@ const sortingOptions: SortingType[] = [
   'Top rated first',
 ];
 
-function sortOffersByType(offers: Offer[], sortingType: SortingType): Offer[] {
+function sortOffersByType(offers: OfferPreview[], sortingType: SortingType): OfferPreview[] {
   switch (sortingType) {
     case 'Price: low to high':
       return [...offers].sort((firstOffer, secondOffer) => firstOffer.price - secondOffer.price);

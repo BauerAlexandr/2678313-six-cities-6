@@ -1,19 +1,51 @@
+import {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
-import {AppRoute} from '../../const';
-import {Offer} from '../../types/offer';
+import {adaptOfferToClient} from '../../api';
+import {APIRoute, AppRoute} from '../../const';
+import {api} from '../../store';
+import {Offer, OfferPreview, OfferResponse} from '../../types/offer';
 import NotFound from '../not-found/not-found';
 import OffersList from '../offers-list/offers-list';
 import CommentForm from '../comment-form/comment-form';
+import Spinner from '../spinner/spinner';
 
 type OfferPageProps = {
-  offers: Offer[];
+  offers: OfferPreview[];
 };
 
 function OfferPage({offers}: OfferPageProps): JSX.Element {
   const {id} = useParams();
-  const offer = offers.find((item) => item.id === id);
+  const [offer, setOffer] = useState<Offer | null>(null);
+  const [isOfferLoading, setIsOfferLoading] = useState<boolean>(true);
+  const [hasError, setHasError] = useState<boolean>(false);
 
-  if (!offer) {
+  useEffect(() => {
+    if (!id) {
+      setHasError(true);
+      setIsOfferLoading(false);
+      return;
+    }
+
+    setIsOfferLoading(true);
+    setHasError(false);
+
+    api.get<OfferResponse>(`${APIRoute.Offers}/${id}`)
+      .then(({data}) => {
+        setOffer(adaptOfferToClient(data));
+      })
+      .catch(() => {
+        setHasError(true);
+      })
+      .finally(() => {
+        setIsOfferLoading(false);
+      });
+  }, [id]);
+
+  if (isOfferLoading) {
+    return <Spinner />;
+  }
+
+  if (!offer || hasError) {
     return <NotFound />;
   }
 

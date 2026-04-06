@@ -1,0 +1,54 @@
+import axios, {AxiosInstance, InternalAxiosRequestConfig} from 'axios';
+import {REQUEST_TIMEOUT, SERVER_URL, TOKEN_KEY_NAME} from './const';
+import {Location, LocationResponse, Offer, OfferPreview, OfferPreviewResponse, OfferResponse} from './types/offer';
+
+const adaptLocationToClient = (location: LocationResponse): Location => ({
+  lat: location.latitude,
+  lng: location.longitude,
+  zoom: location.zoom,
+});
+
+const adaptOfferTypeToClient = (type: string): OfferPreview['type'] =>
+  `${type[0].toUpperCase()}${type.slice(1)}` as OfferPreview['type'];
+
+export const adaptOfferPreviewToClient = (offer: OfferPreviewResponse): OfferPreview => ({
+  id: offer.id,
+  title: offer.title,
+  type: adaptOfferTypeToClient(offer.type),
+  price: offer.price,
+  city: offer.city.name,
+  location: adaptLocationToClient(offer.location),
+  previewImage: offer.previewImage,
+  isPremium: offer.isPremium,
+  isFavorite: offer.isFavorite,
+  rating: offer.rating,
+});
+
+export const adaptOfferToClient = (offer: OfferResponse): Offer => ({
+  ...adaptOfferPreviewToClient(offer),
+  description: offer.description,
+  bedrooms: offer.bedrooms,
+  maxAdults: offer.maxAdults,
+  goods: offer.goods,
+  host: offer.host,
+  images: offer.images,
+});
+
+export const createAPI = (): AxiosInstance => {
+  const api = axios.create({
+    baseURL: SERVER_URL,
+    timeout: REQUEST_TIMEOUT,
+  });
+
+  api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem(TOKEN_KEY_NAME);
+
+    if (token) {
+      config.headers['X-Token'] = token;
+    }
+
+    return config;
+  });
+
+  return api;
+};
