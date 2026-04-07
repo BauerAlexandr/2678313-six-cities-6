@@ -1,44 +1,67 @@
 import {createReducer} from '@reduxjs/toolkit';
-import {OfferPreview} from '../types/offer';
-import {changeCity, fetchOffersAction} from './action';
+import {Offer, OfferPreview} from '../types/offer';
+import {
+  changeCity,
+  loadOffer,
+  loadOffers,
+  setOfferErrorStatus,
+  setOfferLoadingStatus,
+  setOffersErrorStatus,
+  setOffersLoadingStatus,
+} from './action';
 
 export type State = {
   city: string;
   offers: OfferPreview[];
   isOffersLoading: boolean;
-  hasError: boolean;
+  hasOffersError: boolean;
+  offer: Offer | null;
+  isOfferLoading: boolean;
+  hasOfferError: boolean;
 };
 
 export const initialState: State = {
   city: 'Paris',
   offers: [],
   isOffersLoading: false,
-  hasError: false,
+  hasOffersError: false,
+  offer: null,
+  isOfferLoading: false,
+  hasOfferError: false,
 };
 
 export const getCity = (state: State): string => state.city;
 export const getOffers = (state: State): OfferPreview[] => state.offers;
 export const getOffersByCity = (state: State): OfferPreview[] =>
-  state.offers.filter((offer) => offer.city === state.city);
+  state.offers.filter((offerItem) => offerItem.city === state.city);
 export const getOffersLoadingStatus = (state: State): boolean => state.isOffersLoading;
-export const getHasErrorStatus = (state: State): boolean => state.hasError;
+export const getHasOffersErrorStatus = (state: State): boolean => state.hasOffersError;
+export const getOffer = (state: State): Offer | null => state.offer;
+export const getOfferLoadingStatus = (state: State): boolean => state.isOfferLoading;
+export const getHasOfferErrorStatus = (state: State): boolean => state.hasOfferError;
 
 const reducer = createReducer(initialState, (builder) => {
   builder
     .addCase(changeCity, (state, action) => {
       state.city = action.payload;
     })
-    .addCase(fetchOffersAction.pending, (state) => {
-      state.isOffersLoading = true;
-      state.hasError = false;
-    })
-    .addCase(fetchOffersAction.fulfilled, (state, action) => {
+    .addCase(loadOffers, (state, action) => {
       state.offers = action.payload;
-      state.isOffersLoading = false;
     })
-    .addCase(fetchOffersAction.rejected, (state) => {
-      state.isOffersLoading = false;
-      state.hasError = true;
+    .addCase(setOffersLoadingStatus, (state, action) => {
+      state.isOffersLoading = action.payload;
+    })
+    .addCase(setOffersErrorStatus, (state, action) => {
+      state.hasOffersError = action.payload;
+    })
+    .addCase(loadOffer, (state, action) => {
+      state.offer = action.payload;
+    })
+    .addCase(setOfferLoadingStatus, (state, action) => {
+      state.isOfferLoading = action.payload;
+    })
+    .addCase(setOfferErrorStatus, (state, action) => {
+      state.hasOfferError = action.payload;
     });
 });
 

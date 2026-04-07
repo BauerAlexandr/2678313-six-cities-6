@@ -1,4 +1,4 @@
-export type OfferType = 'Apartment' | 'Room' | 'House' | 'Hotel';
+export type OfferType = 'apartment' | 'room' | 'house' | 'hotel';
 
 export type Location = {
   lat: number;

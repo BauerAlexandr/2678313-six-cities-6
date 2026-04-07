@@ -1,57 +1,40 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {Link, useParams} from 'react-router-dom';
-import {adaptOfferToClient} from '../../api';
-import {APIRoute, AppRoute} from '../../const';
-import {api} from '../../store';
-import {Offer, OfferPreview, OfferResponse} from '../../types/offer';
+import {AppRoute} from '../../const';
+import {useAppDispatch, useAppSelector} from '../../hooks';
+import {fetchOfferAction} from '../../store/action';
+import {getHasOfferErrorStatus, getOffer, getOfferLoadingStatus, getOffers} from '../../store/reducer';
 import NotFound from '../not-found/not-found';
 import OffersList from '../offers-list/offers-list';
 import CommentForm from '../comment-form/comment-form';
 import Spinner from '../spinner/spinner';
 
-type OfferPageProps = {
-  offers: OfferPreview[];
-};
-
-function OfferPage({offers}: OfferPageProps): JSX.Element {
+function OfferPage(): JSX.Element {
+  const dispatch = useAppDispatch();
   const {id} = useParams();
-  const [offer, setOffer] = useState<Offer | null>(null);
-  const [isOfferLoading, setIsOfferLoading] = useState<boolean>(true);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const offers = useAppSelector(getOffers);
+  const offer = useAppSelector(getOffer);
+  const isOfferLoading = useAppSelector(getOfferLoadingStatus);
+  const hasOfferError = useAppSelector(getHasOfferErrorStatus);
 
   useEffect(() => {
-    if (!id) {
-      setHasError(true);
-      setIsOfferLoading(false);
-      return;
+    if (id) {
+      dispatch(fetchOfferAction(id));
     }
-
-    setIsOfferLoading(true);
-    setHasError(false);
-
-    api.get<OfferResponse>(`${APIRoute.Offers}/${id}`)
-      .then(({data}) => {
-        setOffer(adaptOfferToClient(data));
-      })
-      .catch(() => {
-        setHasError(true);
-      })
-      .finally(() => {
-        setIsOfferLoading(false);
-      });
-  }, [id]);
+  }, [dispatch, id]);
 
   if (isOfferLoading) {
     return <Spinner />;
   }
 
-  if (!offer || hasError) {
+  if (!id || !offer || hasOfferError) {
     return <NotFound />;
   }
 
   const nearOffers = offers
     .filter((item) => item.city === offer.city && item.id !== offer.id)
     .slice(0, 3);
+  const formattedType = `${offer.type[0].toUpperCase()}${offer.type.slice(1)}`;
 
   return (
     <div className="page">
@@ -122,7 +105,7 @@ function OfferPage({offers}: OfferPageProps): JSX.Element {
               </div>
 
               <ul className="offer__features">
-                <li className="offer__feature offer__feature--entire">{offer.type}</li>
+                <li className="offer__feature offer__feature--entire">{formattedType}</li>
                 <li className="offer__feature offer__feature--bedrooms">{offer.bedrooms} Bedrooms</li>
                 <li className="offer__feature offer__feature--adults">Max {offer.maxAdults} adults</li>
               </ul>

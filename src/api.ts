@@ -8,13 +8,10 @@ const adaptLocationToClient = (location: LocationResponse): Location => ({
   zoom: location.zoom,
 });
 
-const adaptOfferTypeToClient = (type: string): OfferPreview['type'] =>
-  `${type[0].toUpperCase()}${type.slice(1)}` as OfferPreview['type'];
-
 export const adaptOfferPreviewToClient = (offer: OfferPreviewResponse): OfferPreview => ({
   id: offer.id,
   title: offer.title,
-  type: adaptOfferTypeToClient(offer.type),
+  type: offer.type as OfferPreview['type'],
   price: offer.price,
   city: offer.city.name,
   location: adaptLocationToClient(offer.location),
